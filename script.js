@@ -1,4 +1,4 @@
-function sendPrompt() {
+async function sendPrompt() {
     const userInput = document.getElementById('user-input').value;
     const userEmail = document.getElementById('user-email').value;
     const chatOutput = document.querySelector('.chat-output');
@@ -9,24 +9,39 @@ function sendPrompt() {
         return;
     }
 
-    // Aquí debes hacer una llamada a la API de generación de lenguaje
-    // y obtener la respuesta generada en base al prompt del usuario.
-    // Por ahora, mostraremos una respuesta de ejemplo.
-    const generatedResponse = 'Aquí se mostrará la respuesta generada por el modelo de lenguaje.';
+    try {
+        const response = await axios.post('https://api.anthropic.com/v1/complete', {
+            model: 'claude-v1',
+            prompt: userInput,
+            max_tokens_to_sample: 100,
+            stop_sequences: ['\n'],
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': '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',
+            },
+        });
 
-    // Agregar el prompt del usuario y la respuesta generada al chat
-    chatOutput.innerHTML += `<p><strong>Usuario:</strong> ${userInput}</p>`;
-    chatOutput.innerHTML += `<p><strong>Agente:</strong> ${generatedResponse}</p>`;
+        const generatedResponse = response.data.completion;
 
-    // Enviar el plan generado por correo electrónico al usuario
-    sendPlanByEmail(userEmail, generatedResponse);
+        // Agregar el prompt del usuario y la respuesta generada al chat
+        chatOutput.innerHTML += `<p><strong>Usuario:</strong> ${userInput}</p>`;
+        chatOutput.innerHTML += `<p><strong>Agente:</strong> ${generatedResponse}</p>`;
 
-    // Configurar la descarga directa del archivo Excel
-    downloadExcelFile(generatedResponse);
+        // Generar y descargar el archivo Excel
+        const excelFile = generateExcelFile(userInput, generatedResponse);
+        downloadFile(excelFile, 'plan.xlsx');
 
-    // Limpiar los campos de entrada
-    document.getElementById('user-input').value = '';
-    document.getElementById('user-email').value = '';
+        // Enviar el plan generado por correo electrónico al usuario
+        await sendPlanByEmail(userEmail, generatedResponse);
+
+        // Limpiar los campos de entrada
+        document.getElementById('user-input').value = '';
+        document.getElementById('user-email').value = '';
+    } catch (error) {
+        console.error('Error al generar el plan:', error);
+        alert('Ocurrió un error al generar el plan. Por favor, inténtalo de nuevo.');
+    }
 }
 
 function isValidEmail(email) {
@@ -35,16 +50,54 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-function sendPlanByEmail(email, plan) {
-    // Aquí debes implementar la lógica para enviar el plan por correo electrónico al usuario
-    // Puedes utilizar un servicio de correo electrónico o una API de envío de correos
-    console.log(`Enviando el plan por correo electrónico a ${email}`);
-    // ...
+function generateExcelFile(userInput, generatedResponse) {
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet([
+        ['Usuario', 'Agente'],
+        [userInput, generatedResponse],
+    ]);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Plan');
+    const excelFile = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    return excelFile;
 }
 
-function downloadExcelFile(plan) {
-    // Aquí debes implementar la lógica para generar y descargar el archivo Excel
-    // Puedes utilizar una biblioteca como SheetJS para crear el archivo Excel
-    console.log('Descargando el archivo Excel');
-    // ...
+function downloadFile(data, filename) {
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+}
+
+async function sendPlanByEmail(email, plan) {
+    const transporter = nodemailer.createTransport({
+        // Configura los detalles del servicio de correo electrónico
+        // Por ejemplo, para Gmail:
+        service: 'gmail',
+        auth: {
+            user: 'afelipeg@gmail.com',
+            pass: '4ndr35gu1',
+        },
+    });
+
+    const mailOptions = {
+        from: 'TU_CORREO_ELECTRONICO',
+        to: email,
+        subject: 'Plan generado por el Agente Planificador de Medios Digitales',
+        text: `Adjunto encontrarás el plan generado:\n\n${plan}`,
+        attachments: [
+            {
+                filename: 'plan.xlsx',
+                content: generateExcelFile(plan),
+            },
+        ],
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Correo electrónico enviado correctamente.');
+    } catch (error) {
+        console.error('Error al enviar el correo electrónico:', error);
+    }
 }
