@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agente Planificador de Medios Digitales</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Bienvenido al Agente Planificador de Medios Digitales</h1>
-    <!-- Este agente nos permite planear medios digitales no en dias, ni horas...en solo minutos -->
+    <div class="container">
+        <h1>Agente Planificador de Medios Digitales</h1>
+        <div class="chat-container">
+            <div class="chat-output"></div>
+            <div class="chat-input">
+                <textarea placeholder="Ingresa tu prompt..." id="user-input"></textarea>
+                <button onclick="sendPrompt()">Enviar</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
