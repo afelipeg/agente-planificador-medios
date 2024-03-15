@@ -38,6 +38,7 @@ h1 {
 .chat-input {
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
 }
 
 .chat-input textarea {
@@ -65,4 +66,38 @@ h1 {
 
 .chat-input button:hover {
     background-color: #523a87;
+}
+
+.email-input {
+    margin-top: 20px;
+}
+
+.email-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .chat-container {
+        padding: 10px;
+    }
+
+    .chat-input {
+        flex-direction: column;
+    }
+
+    .chat-input textarea {
+        margin-bottom: 10px;
+    }
+
+    .chat-input button {
+        width: 100%;
+    }
 }
