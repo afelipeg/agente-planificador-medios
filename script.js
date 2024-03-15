@@ -11,14 +11,14 @@ async function sendPrompt() {
 
     try {
         const response = await axios.post('https://api.anthropic.com/v1/complete', {
-            model: 'claude-v1',
+            model: '1dad118c-e0a4-4ac6-8bc0-71e369b4e238',
             prompt: userInput,
             max_tokens_to_sample: 100,
             stop_sequences: ['\n'],
         }, {
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': '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',
+                'X-API-Key': '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',
             },
         });
 
