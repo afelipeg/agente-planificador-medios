@@ -10,7 +10,7 @@ async function sendMessage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': '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',
+                'X-API-Key': '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',
             },
             body: JSON.stringify({
                 model: 'Agente Planificador de Medios',
